@@ -18,7 +18,7 @@ jobs:
     
     # Variabel Lingkungan
     env:
-      PROJECT_FOLDER: / # Folder proyek sebenarnya
+      PROJECT_FOLDER: . # Folder proyek sebenarnya
       GRADLE_TARGET_VERSION: 8.6
 
     steps:
@@ -47,11 +47,7 @@ jobs:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
           GRADLE_USER_HOME: ${{ runner.temp }}/.gradle
           
-      - name: Grant Execute Permission to gradlew
-        # Kita menggunakan command find untuk mencari gradlew yang baru dibuat dan memberinya izin
-        run: find . -name 'gradlew' -exec chmod +x {} \;
-        working-directory: ${{ env.PROJECT_FOLDER }}
-        
+      
 
       # 5. Proses Build
       
