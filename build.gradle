@@ -1,11 +1,48 @@
+// build.gradle (DI ROOT REPOSITORY - JIKA HANYA SATU MODUL)
+
 plugins {
-    id 'java'
+    // 1. Terapkan plugin Aplikasi Android
+    id 'com.android.application'
+    // 2. Terapkan plugin Java/Kotlin (sesuaikan jika Anda menggunakan Kotlin)
+    id 'org.jetbrains.kotlin.android' // Atau id 'java' jika hanya Java
 }
 
-group 'org.example'
-version '0.1.0-SNAPSHOT'
+android {
+    // Sesuaikan package name Anda
+    namespace 'com.floating' 
+    
+    // Sesuaikan SDK
+    compileSdk 34 
+
+    defaultConfig {
+        applicationId "com.floating" 
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
 
 repositories {
-    // Use Maven Central for resolving dependencies.
+    google()
     mavenCentral()
+}
+
+dependencies {
+    // Tambahkan dependency yang dibutuhkan untuk kode Anda
+    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
 }
