@@ -1,6 +1,6 @@
 # .github/workflows/android_build.yml
 
-name: Java CI Build (Gradle)
+name: Android CI Build (Versi Stabil dan Cepat)
 
 on:
   push:
@@ -44,24 +44,25 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+        # GRADLE_USER_HOME menggunakan context 'runner' yang harus ada di scope 'steps'
         env:
           GRADLE_USER_HOME: ${{ runner.temp }}/.gradle 
           
       # 5. Proses Build
       
-      - name: Build Project with Gradle
-        # PERBAIKAN: Menggunakan task 'assemble' untuk proyek Java di root
-        run: ./gradlew assemble -Dorg.gradle.parallel=true
+      - name: Build Debug APK with Gradle Wrapper
+        # Menggunakan assembleDebug karena ini adalah proyek Android
+        run: ./gradlew assembleDebug -Dorg.gradle.parallel=true
         working-directory: ${{ env.PROJECT_FOLDER }}
 
       # 6. Upload Artifact
       
-      - name: Upload JAR Artifact
+      - name: Upload Debug APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: hello-gradle-jar
-          # PERBAIKAN: Path untuk JAR (bukan APK)
-          path: build/libs/*.jar
+          name: floating-battery-app-debug
+          # Path untuk single-module di root (tanpa folder 'app/')
+          path: build/outputs/apk/debug/app-debug.apk 
           
       # 7. Commit dan Push Perubahan (Opsional)
       
