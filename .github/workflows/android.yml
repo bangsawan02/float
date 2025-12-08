@@ -1,6 +1,6 @@
 # .github/workflows/android_build.yml
 
-name: Android CI Build (Versi Stabil dan Cepat)
+name: Java CI Build (Gradle)
 
 on:
   push:
@@ -20,7 +20,6 @@ jobs:
     env:
       PROJECT_FOLDER: . 
       GRADLE_TARGET_VERSION: 8.6
-      # GRADLE_OPTS tidak menggunakan runner, aman di scope global
       GRADLE_OPTS: "-Dorg.gradle.daemon=false" 
 
     steps:
@@ -36,7 +35,6 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          # Key menggunakan hash file, yang memastikan cache baru dibuat jika dependensi berubah
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
@@ -46,26 +44,24 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-        # <<< PERBAIKAN: GRADLE_USER_HOME dipindahkan ke sini >>>
-        # Menggunakan context 'runner' yang hanya tersedia di scope 'steps'
         env:
           GRADLE_USER_HOME: ${{ runner.temp }}/.gradle 
           
       # 5. Proses Build
       
-      - name: Build Debug APK with Gradle Wrapper
-        # Menggunakan ./gradlew (disarankan untuk proyek Android)
-        run: ./gradlew assembleDebug -Dorg.gradle.parallel=true
+      - name: Build Project with Gradle
+        # PERBAIKAN: Menggunakan task 'assemble' untuk proyek Java di root
+        run: ./gradlew assemble -Dorg.gradle.parallel=true
         working-directory: ${{ env.PROJECT_FOLDER }}
 
       # 6. Upload Artifact
       
-      - name: Upload Debug APK Artifact
+      - name: Upload JAR Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: floating-battery-app-debug
-          # Path diasumsikan: app/build/outputs/apk/debug/app-debug.apk berada di root repo
-          path: app/build/outputs/apk/debug/app-debug.apk 
+          name: hello-gradle-jar
+          # PERBAIKAN: Path untuk JAR (bukan APK)
+          path: build/libs/*.jar
           
       # 7. Commit dan Push Perubahan (Opsional)
       
@@ -77,10 +73,8 @@ jobs:
           
           git add .
           
-          # Gunakan '|| echo' untuk mencegah kegagalan jika tidak ada yang di-commit
           git commit -m "CI Auto-Setup: Project setup changes" || echo "Tidak ada perubahan untuk di-commit."
           
-          # Hanya push jika commit berhasil (kode keluar 0)
           if [ $? -eq 0 ]; then
             git push
           fi
