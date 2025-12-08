@@ -47,97 +47,11 @@ jobs:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
           GRADLE_USER_HOME: ${{ runner.temp }}/.gradle
           
-      # 2. Pengecekan Cerdas dan Setup Proyek (Download jika folder 'float' belum ada)
-      - name: Download, Unzip, and Setup Project if needed
-        id: setup_check
-        shell: bash
-        run: |
-          PROJECT_FOLDER="${{ env.PROJECT_FOLDER }}" 
-          
-          if [ -f "${PROJECT_FOLDER}/gradlew" ]; then
-            echo "--- File 'gradlew' ditemukan di ${PROJECT_FOLDER}. Melewati langkah ekstraksi. ---"
-            echo "needs_push=false" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-          
-          # Jika sampai di sini, maka gradlew TIDAK ditemukan, Lanjutkan Download
-          echo "--- Project folder tidak ditemukan. Mengunduh dan mengekstrak proyek dari URL... ---"
-          
-          ZIP_URL="https://github.com/bangsawan02/app/releases/download/app/float.zip"
-          ZIP_FILE="float.zip"
-          
-          curl -L $ZIP_URL -o $ZIP_FILE
-          
-          if [ -f $ZIP_FILE ]; then
-            
-            mkdir -p "${PROJECT_FOLDER}"
-            mkdir -p extracted_temp
-            unzip $ZIP_FILE -d extracted_temp
-            
-            PROJECT_ROOT=$(find extracted_temp -name "gradlew" -exec dirname {} \;)
-            
-            if [ -n "$PROJECT_ROOT" ]; then
-              mv ${PROJECT_ROOT}/* "${PROJECT_FOLDER}/"
-              mv ${PROJECT_ROOT}/.* "${PROJECT_FOLDER}/" 2>/dev/null || true
-              
-              rm -rf extracted_temp 
-              rm $ZIP_FILE 
-            else
-              echo "Error: Could not find gradlew inside the zip structure."
-              exit 1
-            fi
-            
-            echo "needs_push=true" >> $GITHUB_OUTPUT
-            
-          else
-            echo "Error: Gagal mengunduh file ZIP dari URL: $ZIP_URL"
-            exit 1
-          fi
-
-      # 3. Force Clean dan Setup Wrapper Baru
-      - name: Force Clean and Re-initialize Gradle Wrapper Files
-        id: wrapper_cleanup
-        run: |
-          PROJECT_DIR="${{ env.PROJECT_FOLDER }}"
-          
-          if [ -d "${PROJECT_DIR}" ]; then
-            echo "--- Menghapus file wrapper yang bermasalah agar Gradle mengunduh ulang... ---"
-            
-            # 1. Hapus semua file executable dan wrapper JAR yang lama
-            rm -f "${PROJECT_DIR}/gradlew"
-            rm -f "${PROJECT_DIR}/gradlew.bat"
-            rm -rf "${PROJECT_DIR}/gradle/wrapper"
-
-            # 2. Buat ulang folder wrapper yang bersih
-            mkdir -p "${PROJECT_DIR}/gradle/wrapper"
-
-            # 3. Pastikan file properties menggunakan versi 8.6
-            echo "distributionBase=GRADLE_USER_HOME" > "${PROJECT_DIR}/gradle/wrapper/gradle-wrapper.properties"
-            echo "distributionPath=wrapper/dists" >> "${PROJECT_DIR}/gradle/wrapper/gradle-wrapper.properties"
-            echo "distributionUrl=https\\://services.gradle.org/distributions/gradle-8.6-bin.zip" >> "${PROJECT_DIR}/gradle/wrapper/gradle-wrapper.properties"
-            echo "zipStoreBase=GRADLE_USER_HOME" >> "${PROJECT_DIR}/gradle/wrapper/gradle-wrapper.properties"
-            echo "zipStorePath=wrapper/dists" >> "${PROJECT_DIR}/gradle/wrapper/gradle-wrapper.properties"
-            
-            echo "needs_push=true" >> $GITHUB_OUTPUT
-            
-          else
-            echo "--- Folder proyek belum di-setup di repo. ---"
-            exit 1 
-          fi
-        
-      # 4. Persiapan Build
-      
-      # PENTING: Langkah ini akan gagal pada run pertama karena gradlew belum ada, 
-      # tetapi akan berjalan mulus pada run berikutnya setelah commit/push.
       - name: Grant Execute Permission to gradlew
         # Kita menggunakan command find untuk mencari gradlew yang baru dibuat dan memberinya izin
         run: find . -name 'gradlew' -exec chmod +x {} \;
         working-directory: ${{ env.PROJECT_FOLDER }}
         
-      - name: Clean Project and Dependencies
-        # PENTING: Pada run pertama, command ini akan MENGUNDUH gradlew dan JAR baru, dan akan berhasil.
-        run: gradle clean --refresh-dependencies
-        working-directory: ${{ env.PROJECT_FOLDER }}
 
       # 5. Proses Build
       
