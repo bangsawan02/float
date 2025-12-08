@@ -1,21 +1,22 @@
-// build.gradle (DI ROOT REPOSITORY - JIKA HANYA SATU MODUL)
+// build.gradle (DI ROOT REPOSITORY - VERSI FINAL)
 
 plugins {
-    // 1. Terapkan plugin Aplikasi Android
-    id 'com.android.application'
-    // 2. Terapkan plugin Java/Kotlin (sesuaikan jika Anda menggunakan Kotlin)
-    id 'org.jetbrains.kotlin.android' // Atau id 'java' jika hanya Java
+    // 1. Terapkan plugin Aplikasi Android DENGAN VERSI (KRUSIAL)
+    // Versi 8.6.0 adalah contoh versi yang stabil.
+    id 'com.android.application' version '8.6.0' apply true 
+    
+    // 2. Terapkan plugin Kotlin (Opsional, hapus jika Anda hanya menggunakan Java)
+    // id 'org.jetbrains.kotlin.android' version '1.9.0' apply false
 }
 
 android {
-    // Sesuaikan package name Anda
-    namespace 'com.floating' 
-    
-    // Sesuaikan SDK
+    // HARAP GANTI VERSI SDK INI SESUAI DENGAN SDK YANG TERINSTAL
     compileSdk 34 
 
+    namespace 'com.floating' // Sesuaikan dengan package name di FloatingTextService.java
+
     defaultConfig {
-        applicationId "com.floating" 
+        applicationId "com.floating.battery" // ID Aplikasi
         minSdk 24
         targetSdk 34
         versionCode 1
@@ -30,18 +31,20 @@ android {
     }
 
     compileOptions {
+        // Pastikan kompatibel dengan JDK 17 yang Anda gunakan di GitHub Actions
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
 }
 
 repositories {
+    // Repositori standar untuk Android dan dependensi umum
     google()
     mavenCentral()
 }
 
 dependencies {
-    // Tambahkan dependency yang dibutuhkan untuk kode Anda
+    // Dependency yang digunakan oleh FloatingTextService.java
     implementation 'androidx.core:core-ktx:1.12.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.11.0'
