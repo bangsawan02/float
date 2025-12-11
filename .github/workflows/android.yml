@@ -1,4 +1,4 @@
-name: 🖥️ Persistent Xfce + Tailscale (Host Runner, VNC/noVNC)
+name: crott
 
 on:
   # Pemicu manual agar bisa dijalankan dari UI GitHub
