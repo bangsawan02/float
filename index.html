@@ -26,10 +26,11 @@
         .sisa-row input { width: 50px; padding: 4px; text-align: center; margin-right: 5px; border: 1px solid #ddd; border-radius: 4px; }
 
         .actions { margin-top: 25px; display: grid; gap: 10px; }
-        button { width: 100%; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9rem; }
-        .btn-save { background: #2e7d32; color: white; }
-        .btn-copy { background: #1976d2; color: white; }
-        .btn-reset { background: #eee; color: #666; font-size: 0.75rem; }
+        button { width: 100%; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9rem; transition: 0.2s; }
+        .btn-save { background: #555; color: white; }
+        .btn-copy { background: #25d366; color: white; font-size: 1rem; } /* Warna Hijau WA */
+        .btn-copy:active { transform: scale(0.98); }
+        .btn-reset { background: #eee; color: #999; font-size: 0.75rem; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -49,9 +50,9 @@
     <div id="sisaForm"></div>
 
     <div class="actions">
-        <button class="btn-save" onclick="saveData()">💾 SIMPAN DATA</button>
-        <button class="btn-copy" onclick="copyReport()">📋 SALIN LAPORAN (WA)</button>
-        <button class="btn-reset" onclick="resetData()">Reset ke Awal</button>
+        <button class="btn-copy" onclick="copyReport()">📋 SALIN LAPORAN KE WA</button>
+        <button class="btn-save" onclick="saveData(true)">💾 SIMPAN DATA SAJA</button>
+        <button class="btn-reset" onclick="resetData()">Reset Data ke Awal</button>
     </div>
 </div>
 
@@ -75,8 +76,8 @@
     }
 
     function renderForms() {
-        const savedOmset = JSON.parse(localStorage.getItem('jepe_omset_v2'));
-        const savedSisa = JSON.parse(localStorage.getItem('jepe_sisa_v2'));
+        const savedOmset = JSON.parse(localStorage.getItem('jepe_omset_v3'));
+        const savedSisa = JSON.parse(localStorage.getItem('jepe_sisa_v3'));
 
         // Render Omset
         const omsetHtml = areaList.map((area, i) => `
@@ -92,7 +93,7 @@
             <div class="sisa-row">
                 <span>${area}</span>
                 <div class="input-group">
-                    <input type="number" class="sisa-in" value="${savedSisa ? savedSisa[i] : 0}">
+                    <input type="number" class="sisa-in" value="${savedSisa ? savedSisa[i] : 0}" oninput="saveData(false)">
                     <span>pcs</span>
                 </div>
             </div>
@@ -108,19 +109,23 @@
             total += Number(input.value) || 0;
         });
         document.getElementById('grandTotal').innerText = "Rp" + total.toLocaleString('id-ID');
+        saveData(false); // Simpan otomatis tiap ada perubahan tanpa alert
     }
 
-    function saveData() {
+    // Param showAlert untuk menentukan muncul pop-up atau tidak
+    function saveData(showAlert) {
         const omsetVals = Array.from(document.querySelectorAll('.omset-in')).map(i => Number(i.value));
         const sisaVals = Array.from(document.querySelectorAll('.sisa-in')).map(i => Number(i.value));
         
-        localStorage.setItem('jepe_omset_v2', JSON.stringify(omsetVals));
-        localStorage.setItem('jepe_sisa_v2', JSON.stringify(sisaVals));
-        alert("Data tersimpan!");
+        localStorage.setItem('jepe_omset_v3', JSON.stringify(omsetVals));
+        localStorage.setItem('jepe_sisa_v3', JSON.stringify(sisaVals));
+        
+        if(showAlert) alert("Data berhasil disimpan!");
     }
 
     function copyReport() {
-        saveData(); // Simpan dulu sebelum copy
+        // Simpan data terbaru tanpa alert
+        saveData(false);
         
         let total = document.getElementById('grandTotal').innerText;
         let text = `*OMSET PENJUALAN AYAM BOOTH JEPE FRIED CHICKEN*\n*${getToday()}*\n\n*AREA TIMUR (AWAN)*\n\n`;
@@ -131,23 +136,35 @@
             text += `*${i+1}. ${area}* ${val}\n`;
         });
 
-        text += `___________________________ +\n\nTotal:  *${total}*\n\n*Sisa goreng booth area timur*\n\n`;
+        text += `___________________________ +\n\nTotal:              *${total}*\n\n*sisa goreng booth area timur*\n\n`;
 
         const sisaIn = document.querySelectorAll('.sisa-in');
+        let adaSisa = false;
         areaList.forEach((area, i) => {
-            if(Number(sisaIn[i].value) > 0) {
-                text += `${area}\n- ${sisaIn[i].value} pcs dibooth\n\n`;
+            let jml = Number(sisaIn[i].value);
+            if(jml > 0) {
+                text += `${area}\n- dada lembut ${jml} pcs\ndibooth\n\n`;
+                adaSisa = true;
             }
         });
 
-        navigator.clipboard.writeText(text).then(() => {
-            alert("Laporan berhasil disalin ke clipboard! Silakan paste di WhatsApp.");
-        });
+        if(!adaSisa) text += "(Tidak ada sisa goreng)";
+
+        // Proses Copy ke Clipboard
+        const el = document.createElement('textarea');
+        el.value = text;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+
+        alert("✅ Laporan sudah DISALIN! Silakan buka WhatsApp lalu tempel (paste).");
     }
 
     function resetData() {
-        if(confirm("Reset semua data?")) {
-            localStorage.clear();
+        if(confirm("Hapus semua data dan kembali ke awal?")) {
+            localStorage.removeItem('jepe_omset_v3');
+            localStorage.removeItem('jepe_sisa_v3');
             location.reload();
         }
     }
