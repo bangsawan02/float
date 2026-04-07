@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Omset Jepe Fried Chicken</title>
+    <style>
+        :root {
+            --primary: #d32f2f;
+            --secondary: #fbc02d;
+            --bg: #f4f4f4;
+            --text: #333;
+        }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: var(--bg); 
+            padding: 15px; 
+            color: var(--text); 
+            line-height: 1.6;
+        }
+        .container { 
+            max-width: 500px; 
+            background: white; 
+            padding: 20px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            margin: auto; 
+        }
+        h2 { color: var(--primary); text-align: center; font-size: 1.1rem; margin-bottom: 5px; text-transform: uppercase; }
+        .date-header { text-align: center; font-weight: bold; margin-bottom: 20px; border-bottom: 2px solid var(--secondary); padding-bottom: 10px; font-size: 0.9rem; }
+        
+        .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .row label { flex: 1; font-weight: 500; font-size: 0.9rem; }
+        .row input { width: 130px; padding: 6px; border: 1px solid #ddd; border-radius: 4px; text-align: right; font-family: monospace; font-size: 0.9rem; }
+
+        .total-section { margin-top: 15px; padding-top: 15px; border-top: 2px dashed #ccc; font-weight: bold; font-size: 1.1rem; color: var(--primary); }
+        
+        .sisa-section { margin-top: 25px; border-top: 1px solid #eee; padding-top: 10px; }
+        .sisa-section h3 { font-size: 1rem; color: #555; margin-bottom: 10px; }
+        .sisa-item { margin-bottom: 15px; }
+        .sisa-item label { display: block; margin-bottom: 5px; font-size: 0.85rem; color: #777; font-weight: bold; }
+        .sisa-item textarea { width: 100%; height: 60px; padding: 10px; border-radius: 6px; border: 1px solid #ddd; box-sizing: border-box; font-family: inherit; resize: none; font-size: 0.9rem; }
+
+        .actions { margin-top: 20px; display: grid; gap: 10px; }
+        button { width: 100%; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn-save { background: var(--primary); color: white; }
+        .btn-save:hover { background: #b71c1c; }
+        .btn-reset { background: #eee; color: #666; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>OMSET PENJUALAN AYAM BOOTH<br>JEPE FRIED CHICKEN</h2>
+    <div class="date-header" id="currentDate"></div>
+
+    <div id="omsetForm">
+        </div>
+
+    <div class="total-section">
+        <div class="row">
+            <span>TOTAL:</span>
+            <span id="grandTotal">Rp0</span>
+        </div>
+    </div>
+
+    <div class="sisa-section">
+        <h3>SISA GORENG BOOTH</h3>
+        <div id="sisaForm">
+            </div>
+    </div>
+
+    <div class="actions">
+        <button class="btn-save" onclick="saveData()">SIMPAN KE LOCAL STORAGE</button>
+        <button class="btn-reset" onclick="resetData()">Reset ke Data Default</button>
+    </div>
+</div>
+
+<script>
+    // Data awal (Default)
+    const defaultOutlets = [
+        { name: "pendowo", val: 322000 },
+        { name: "trimulyo", val: 438000 },
+        { name: "turi", val: 3 },
+        { name: "pandanaran", val: 467000 },
+        { name: "rejodani", val: 4 },
+        { name: "jongke", val: 514000 },
+        { name: "kronggahan", val: 742000 },
+        { name: "cebongan", val: 4323000 },
+        { name: "caturharjo", val: 538000 },
+        { name: "cemoro", val: 1149000 }
+    ];
+
+    const defaultSisa = [
+        { loc: "PANDANARAN", text: "- dada lembut 2 pcs\ndibooth" },
+        { loc: "PENDOWO", text: "- dada biasa 2 pcs\ndibooth" }
+    ];
+
+    // 1. Fungsi Inisialisasi Tanggal
+    function setDate() {
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: '2-digit' };
+        document.getElementById('currentDate').innerText = new Date().toLocaleDateString('id-ID', options).toUpperCase();
+    }
+
+    // 2. Render Form dari LocalStorage atau Default
+    function renderForms() {
+        const savedOmset = JSON.parse(localStorage.getItem('jepe_omset'));
+        const savedSisa = JSON.parse(localStorage.getItem('jepe_sisa'));
+
+        const dataOmset = savedOmset || defaultOutlets;
+        const dataSisa = savedSisa || defaultSisa;
+
+        // Render Omset
+        const omsetContainer = document.getElementById('omsetForm');
+        omsetContainer.innerHTML = dataOmset.map((item, index) => `
+            <div class="row">
+                <label>${index + 1}. ${item.name}</label>
+                <input type="number" class="omset-input" data-name="${item.name}" value="${item.val}" oninput="calculateTotal()">
+            </div>
+        `).join('');
+
+        // Render Sisa
+        const sisaContainer = document.getElementById('sisaForm');
+        sisaContainer.innerHTML = dataSisa.map(item => `
+            <div class="sisa-item">
+                <label>${item.loc}</label>
+                <textarea class="sisa-input" data-loc="${item.loc}">${item.text}</textarea>
+            </div>
+        `).join('');
+
+        calculateTotal();
+    }
+
+    // 3. Fungsi Hitung Total
+    function calculateTotal() {
+        const inputs = document.querySelectorAll('.omset-input');
+        let total = 0;
+        inputs.forEach(input => {
+            total += Number(input.value) || 0;
+        });
+        document.getElementById('grandTotal').innerText = "Rp" + total.toLocaleString('id-ID');
+    }
+
+    // 4. Simpan ke LocalStorage
+    function saveData() {
+        const omsetElements = document.querySelectorAll('.omset-input');
+        const sisaElements = document.querySelectorAll('.sisa-input');
+
+        const omsetTersimpan = Array.from(omsetElements).map(el => ({
+            name: el.getAttribute('data-name'),
+            val: Number(el.value)
+        }));
+
+        const sisaTersimpan = Array.from(sisaElements).map(el => ({
+            loc: el.getAttribute('data-loc'),
+            text: el.value
+        }));
+
+        localStorage.setItem('jepe_omset', JSON.stringify(omsetTersimpan));
+        localStorage.setItem('jepe_sisa', JSON.stringify(sisaTersimpan));
+
+        alert("Data Berhasil Disimpan di LocalStorage!");
+    }
+
+    // 5. Reset Data
+    function resetData() {
+        if(confirm("Apakah Anda yakin ingin mengembalikan data ke pengaturan awal?")) {
+            localStorage.removeItem('jepe_omset');
+            localStorage.removeItem('jepe_sisa');
+            renderForms();
+        }
+    }
+
+    // Jalankan saat halaman dimuat
+    setDate();
+    renderForms();
+</script>
+
+</body>
+</html>
