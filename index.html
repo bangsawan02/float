@@ -3,177 +3,156 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Omset Jepe Fried Chicken</title>
+    <title>Laporan Jepe Fried Chicken</title>
     <style>
-        :root {
-            --primary: #d32f2f;
-            --secondary: #fbc02d;
-            --bg: #f4f4f4;
-            --text: #333;
-        }
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background: var(--bg); 
-            padding: 15px; 
-            color: var(--text); 
-            line-height: 1.6;
-        }
-        .container { 
-            max-width: 500px; 
-            background: white; 
-            padding: 20px; 
-            border-radius: 12px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
-            margin: auto; 
-        }
-        h2 { color: var(--primary); text-align: center; font-size: 1.1rem; margin-bottom: 5px; text-transform: uppercase; }
-        .date-header { text-align: center; font-weight: bold; margin-bottom: 20px; border-bottom: 2px solid var(--secondary); padding-bottom: 10px; font-size: 0.9rem; }
+        :root { --primary: #d32f2f; --secondary: #fbc02d; --bg: #f4f4f4; }
+        body { font-family: 'Arial', sans-serif; background: var(--bg); padding: 10px; color: #333; }
+        .container { max-width: 450px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin: auto; }
+        
+        h2 { color: var(--primary); text-align: center; font-size: 1rem; margin-bottom: 5px; }
+        .date-header { text-align: center; font-weight: bold; margin-bottom: 20px; border-bottom: 2px solid var(--secondary); padding-bottom: 10px; font-size: 0.85rem; }
+        
+        .section-title { font-weight: bold; font-size: 0.9rem; margin: 15px 0 10px 0; color: #555; text-transform: uppercase; border-left: 4px solid var(--primary); padding-left: 8px; }
         
         .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .row label { flex: 1; font-weight: 500; font-size: 0.9rem; }
-        .row input { width: 130px; padding: 6px; border: 1px solid #ddd; border-radius: 4px; text-align: right; font-family: monospace; font-size: 0.9rem; }
+        .row label { flex: 1; font-size: 0.85rem; text-transform: capitalize; }
+        .row input { width: 100px; padding: 6px; border: 1px solid #ddd; border-radius: 4px; text-align: right; font-size: 0.85rem; }
 
-        .total-section { margin-top: 15px; padding-top: 15px; border-top: 2px dashed #ccc; font-weight: bold; font-size: 1.1rem; color: var(--primary); }
+        .total-box { margin-top: 15px; padding: 10px; background: #fffde7; border-radius: 6px; border: 1px solid var(--secondary); font-weight: bold; text-align: right; }
         
-        .sisa-section { margin-top: 25px; border-top: 1px solid #eee; padding-top: 10px; }
-        .sisa-section h3 { font-size: 1rem; color: #555; margin-bottom: 10px; }
-        .sisa-item { margin-bottom: 15px; }
-        .sisa-item label { display: block; margin-bottom: 5px; font-size: 0.85rem; color: #777; font-weight: bold; }
-        .sisa-item textarea { width: 100%; height: 60px; padding: 10px; border-radius: 6px; border: 1px solid #ddd; box-sizing: border-box; font-family: inherit; resize: none; font-size: 0.9rem; }
+        .sisa-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; padding: 4px 0; border-bottom: 1px solid #eee; }
+        .sisa-row span { font-size: 0.85rem; }
+        .sisa-row .input-group { display: flex; align-items: center; }
+        .sisa-row input { width: 50px; padding: 4px; text-align: center; margin-right: 5px; border: 1px solid #ddd; border-radius: 4px; }
 
-        .actions { margin-top: 20px; display: grid; gap: 10px; }
-        button { width: 100%; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .btn-save { background: var(--primary); color: white; }
-        .btn-save:hover { background: #b71c1c; }
-        .btn-reset { background: #eee; color: #666; font-size: 0.8rem; }
+        .actions { margin-top: 25px; display: grid; gap: 10px; }
+        button { width: 100%; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9rem; }
+        .btn-save { background: #2e7d32; color: white; }
+        .btn-copy { background: #1976d2; color: white; }
+        .btn-reset { background: #eee; color: #666; font-size: 0.75rem; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h2>OMSET PENJUALAN AYAM BOOTH<br>JEPE FRIED CHICKEN</h2>
-    <div class="date-header" id="currentDate"></div>
+    <div class="date-header" id="displayDate"></div>
 
-    <div id="omsetForm">
-        </div>
+    <div class="section-title">Omset Area Timur</div>
+    <div id="omsetForm"></div>
 
-    <div class="total-section">
-        <div class="row">
-            <span>TOTAL:</span>
-            <span id="grandTotal">Rp0</span>
-        </div>
+    <div class="total-box">
+        TOTAL: <span id="grandTotal">Rp0</span>
     </div>
 
-    <div class="sisa-section">
-        <h3>SISA GORENG BOOTH</h3>
-        <div id="sisaForm">
-            </div>
-    </div>
+    <div class="section-title">Sisa Goreng (Pcs)</div>
+    <div id="sisaForm"></div>
 
     <div class="actions">
-        <button class="btn-save" onclick="saveData()">SIMPAN KE LOCAL STORAGE</button>
-        <button class="btn-reset" onclick="resetData()">Reset ke Data Default</button>
+        <button class="btn-save" onclick="saveData()">💾 SIMPAN DATA</button>
+        <button class="btn-copy" onclick="copyReport()">📋 SALIN LAPORAN (WA)</button>
+        <button class="btn-reset" onclick="resetData()">Reset ke Awal</button>
     </div>
 </div>
 
 <script>
-    // Data awal (Default)
-    const defaultOutlets = [
-        { name: "pendowo", val: 322000 },
-        { name: "trimulyo", val: 438000 },
-        { name: "turi", val: 3 },
-        { name: "pandanaran", val: 467000 },
-        { name: "rejodani", val: 4 },
-        { name: "jongke", val: 514000 },
-        { name: "kronggahan", val: 742000 },
-        { name: "cebongan", val: 4323000 },
-        { name: "caturharjo", val: 538000 },
-        { name: "cemoro", val: 1149000 }
+    const areaList = [
+        "pendowo", "trimulyo", "turi", "pandanaran", "rejodani", 
+        "jongke", "kronggahan", "cebongan", "caturharjo", "cemoro"
     ];
 
-    const defaultSisa = [
-        { loc: "PANDANARAN", text: "- dada lembut 2 pcs\ndibooth" },
-        { loc: "PENDOWO", text: "- dada biasa 2 pcs\ndibooth" }
-    ];
+    const defaultOmset = [322000, 438000, 3, 467000, 4, 514000, 742000, 4323000, 538000, 1149000];
 
-    // 1. Fungsi Inisialisasi Tanggal
-    function setDate() {
-        const options = { weekday: 'long', year: 'numeric', month: 'long', day: '2-digit' };
-        document.getElementById('currentDate').innerText = new Date().toLocaleDateString('id-ID', options).toUpperCase();
+    function getToday() {
+        const d = new Date();
+        const options = { day: '2-digit', month: 'long', year: 'numeric' };
+        return d.toLocaleDateString('id-ID', options).toUpperCase();
     }
 
-    // 2. Render Form dari LocalStorage atau Default
-    function renderForms() {
-        const savedOmset = JSON.parse(localStorage.getItem('jepe_omset'));
-        const savedSisa = JSON.parse(localStorage.getItem('jepe_sisa'));
+    function init() {
+        document.getElementById('displayDate').innerText = getToday();
+        renderForms();
+    }
 
-        const dataOmset = savedOmset || defaultOutlets;
-        const dataSisa = savedSisa || defaultSisa;
+    function renderForms() {
+        const savedOmset = JSON.parse(localStorage.getItem('jepe_omset_v2'));
+        const savedSisa = JSON.parse(localStorage.getItem('jepe_sisa_v2'));
 
         // Render Omset
-        const omsetContainer = document.getElementById('omsetForm');
-        omsetContainer.innerHTML = dataOmset.map((item, index) => `
+        const omsetHtml = areaList.map((area, i) => `
             <div class="row">
-                <label>${index + 1}. ${item.name}</label>
-                <input type="number" class="omset-input" data-name="${item.name}" value="${item.val}" oninput="calculateTotal()">
+                <label>${i + 1}. ${area}</label>
+                <input type="number" class="omset-in" value="${savedOmset ? savedOmset[i] : defaultOmset[i]}" oninput="calc()">
             </div>
         `).join('');
+        document.getElementById('omsetForm').innerHTML = omsetHtml;
 
         // Render Sisa
-        const sisaContainer = document.getElementById('sisaForm');
-        sisaContainer.innerHTML = dataSisa.map(item => `
-            <div class="sisa-item">
-                <label>${item.loc}</label>
-                <textarea class="sisa-input" data-loc="${item.loc}">${item.text}</textarea>
+        const sisaHtml = areaList.map((area, i) => `
+            <div class="sisa-row">
+                <span>${area}</span>
+                <div class="input-group">
+                    <input type="number" class="sisa-in" value="${savedSisa ? savedSisa[i] : 0}">
+                    <span>pcs</span>
+                </div>
             </div>
         `).join('');
+        document.getElementById('sisaForm').innerHTML = sisaHtml;
 
-        calculateTotal();
+        calc();
     }
 
-    // 3. Fungsi Hitung Total
-    function calculateTotal() {
-        const inputs = document.querySelectorAll('.omset-input');
+    function calc() {
         let total = 0;
-        inputs.forEach(input => {
+        document.querySelectorAll('.omset-in').forEach(input => {
             total += Number(input.value) || 0;
         });
         document.getElementById('grandTotal').innerText = "Rp" + total.toLocaleString('id-ID');
     }
 
-    // 4. Simpan ke LocalStorage
     function saveData() {
-        const omsetElements = document.querySelectorAll('.omset-input');
-        const sisaElements = document.querySelectorAll('.sisa-input');
-
-        const omsetTersimpan = Array.from(omsetElements).map(el => ({
-            name: el.getAttribute('data-name'),
-            val: Number(el.value)
-        }));
-
-        const sisaTersimpan = Array.from(sisaElements).map(el => ({
-            loc: el.getAttribute('data-loc'),
-            text: el.value
-        }));
-
-        localStorage.setItem('jepe_omset', JSON.stringify(omsetTersimpan));
-        localStorage.setItem('jepe_sisa', JSON.stringify(sisaTersimpan));
-
-        alert("Data Berhasil Disimpan di LocalStorage!");
+        const omsetVals = Array.from(document.querySelectorAll('.omset-in')).map(i => Number(i.value));
+        const sisaVals = Array.from(document.querySelectorAll('.sisa-in')).map(i => Number(i.value));
+        
+        localStorage.setItem('jepe_omset_v2', JSON.stringify(omsetVals));
+        localStorage.setItem('jepe_sisa_v2', JSON.stringify(sisaVals));
+        alert("Data tersimpan!");
     }
 
-    // 5. Reset Data
+    function copyReport() {
+        saveData(); // Simpan dulu sebelum copy
+        
+        let total = document.getElementById('grandTotal').innerText;
+        let text = `*OMSET PENJUALAN AYAM BOOTH JEPE FRIED CHICKEN*\n*${getToday()}*\n\n*AREA TIMUR (AWAN)*\n\n`;
+        
+        const omsetIn = document.querySelectorAll('.omset-in');
+        areaList.forEach((area, i) => {
+            let val = Number(omsetIn[i].value).toLocaleString('id-ID');
+            text += `*${i+1}. ${area}* ${val}\n`;
+        });
+
+        text += `___________________________ +\n\nTotal:  *${total}*\n\n*Sisa goreng booth area timur*\n\n`;
+
+        const sisaIn = document.querySelectorAll('.sisa-in');
+        areaList.forEach((area, i) => {
+            if(Number(sisaIn[i].value) > 0) {
+                text += `${area}\n- ${sisaIn[i].value} pcs dibooth\n\n`;
+            }
+        });
+
+        navigator.clipboard.writeText(text).then(() => {
+            alert("Laporan berhasil disalin ke clipboard! Silakan paste di WhatsApp.");
+        });
+    }
+
     function resetData() {
-        if(confirm("Apakah Anda yakin ingin mengembalikan data ke pengaturan awal?")) {
-            localStorage.removeItem('jepe_omset');
-            localStorage.removeItem('jepe_sisa');
-            renderForms();
+        if(confirm("Reset semua data?")) {
+            localStorage.clear();
+            location.reload();
         }
     }
 
-    // Jalankan saat halaman dimuat
-    setDate();
-    renderForms();
+    init();
 </script>
 
 </body>
