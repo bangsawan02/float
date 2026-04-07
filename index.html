@@ -3,168 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Jepe Fried Chicken</title>
+    <title>Input Laporan Jepe</title>
     <style>
-        :root { --primary: #d32f2f; --secondary: #fbc02d; --bg: #f4f4f4; }
-        body { font-family: 'Arial', sans-serif; background: var(--bg); padding: 10px; color: #333; }
-        .container { max-width: 450px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin: auto; }
+        :root { --primary: #d32f2f; --bg: #f8f9fa; }
+        body { font-family: 'Courier New', Courier, monospace; background: var(--bg); padding: 10px; }
+        .container { max-width: 450px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin: auto; }
+        h2 { text-align: center; font-size: 1rem; color: var(--primary); margin-bottom: 20px; }
         
-        h2 { color: var(--primary); text-align: center; font-size: 1rem; margin-bottom: 5px; }
-        .date-header { text-align: center; font-weight: bold; margin-bottom: 20px; border-bottom: 2px solid var(--secondary); padding-bottom: 10px; font-size: 0.85rem; }
+        .section-title { background: #eee; padding: 5px 10px; font-weight: bold; margin-bottom: 10px; border-left: 4px solid var(--primary); }
         
-        .section-title { font-weight: bold; font-size: 0.9rem; margin: 15px 0 10px 0; color: #555; text-transform: uppercase; border-left: 4px solid var(--primary); padding-left: 8px; }
-        
-        .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .row label { flex: 1; font-size: 0.85rem; text-transform: capitalize; }
-        .row input { width: 100px; padding: 6px; border: 1px solid #ddd; border-radius: 4px; text-align: right; font-size: 0.85rem; }
+        .row { display: flex; align-items: center; margin-bottom: 8px; gap: 10px; }
+        .row label { flex: 1; font-size: 0.9rem; }
+        .row input { width: 120px; padding: 5px; border: 1px solid #ccc; text-align: right; }
 
-        .total-box { margin-top: 15px; padding: 10px; background: #fffde7; border-radius: 6px; border: 1px solid var(--secondary); font-weight: bold; text-align: right; }
-        
-        .sisa-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; padding: 4px 0; border-bottom: 1px solid #eee; }
-        .sisa-row span { font-size: 0.85rem; }
-        .sisa-row .input-group { display: flex; align-items: center; }
-        .sisa-row input { width: 50px; padding: 4px; text-align: center; margin-right: 5px; border: 1px solid #ddd; border-radius: 4px; }
+        .sisa-container { border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px; }
+        .sisa-inputs { display: flex; gap: 5px; margin-top: 5px; }
+        .sisa-inputs input:first-child { flex: 2; } /* Nama Barang */
+        .sisa-inputs input:last-child { flex: 1; }  /* Pcs */
 
-        .actions { margin-top: 25px; display: grid; gap: 10px; }
-        button { width: 100%; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9rem; transition: 0.2s; }
-        .btn-save { background: #555; color: white; }
-        .btn-copy { background: #25d366; color: white; font-size: 1rem; } /* Warna Hijau WA */
-        .btn-copy:active { transform: scale(0.98); }
-        .btn-reset { background: #eee; color: #999; font-size: 0.75rem; margin-top: 10px; }
+        .total-box { text-align: right; font-weight: bold; padding: 10px; border-top: 2px solid #333; margin-top: 10px; }
+
+        .btn-copy { width: 100%; padding: 15px; background: #25d366; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 1rem; margin-top: 20px; }
+        .btn-reset { width: 100%; background: none; border: none; color: #999; cursor: pointer; margin-top: 10px; text-decoration: underline; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>OMSET PENJUALAN AYAM BOOTH<br>JEPE FRIED CHICKEN</h2>
-    <div class="date-header" id="displayDate"></div>
+    <h2>INPUT LAPORAN HARIAN</h2>
 
-    <div class="section-title">Omset Area Timur</div>
+    <div class="section-title">OMSET AREA TIMUR</div>
     <div id="omsetForm"></div>
+    <div class="total-box">Total: <span id="grandTotal">Rp0</span></div>
 
-    <div class="total-box">
-        TOTAL: <span id="grandTotal">Rp0</span>
-    </div>
-
-    <div class="section-title">Sisa Goreng (Pcs)</div>
+    <div class="section-title">SISA GORENG</div>
     <div id="sisaForm"></div>
 
-    <div class="actions">
-        <button class="btn-copy" onclick="copyReport()">📋 SALIN LAPORAN KE WA</button>
-        <button class="btn-save" onclick="saveData(true)">💾 SIMPAN DATA SAJA</button>
-        <button class="btn-reset" onclick="resetData()">Reset Data ke Awal</button>
-    </div>
+    <button class="btn-copy" onclick="copyReport()">📋 SALIN LAPORAN (WHATSAPP)</button>
+    <button class="btn-reset" onclick="resetData()">Reset Data</button>
 </div>
 
 <script>
-    const areaList = [
-        "pendowo", "trimulyo", "turi", "pandanaran", "rejodani", 
-        "jongke", "kronggahan", "cebongan", "caturharjo", "cemoro"
-    ];
-
-    const defaultOmset = [322000, 438000, 3, 467000, 4, 514000, 742000, 4323000, 538000, 1149000];
-
-    function getToday() {
-        const d = new Date();
-        const options = { day: '2-digit', month: 'long', year: 'numeric' };
-        return d.toLocaleDateString('id-ID', options).toUpperCase();
-    }
+    const areaList = ["pendowo", "trimulyo", "turi", "pandanaran", "rejodani", "jongke", "kronggahan", "cebongan", "caturharjo", "cemoro"];
 
     function init() {
-        document.getElementById('displayDate').innerText = getToday();
-        renderForms();
-    }
-
-    function renderForms() {
-        const savedOmset = JSON.parse(localStorage.getItem('jepe_omset_v3'));
-        const savedSisa = JSON.parse(localStorage.getItem('jepe_sisa_v3'));
+        const savedOmset = JSON.parse(localStorage.getItem('jepe_omset_v4')) || [0,0,0,0,0,0,0,0,0,0];
+        const savedSisa = JSON.parse(localStorage.getItem('jepe_sisa_v4')) || areaList.map(() => ({ item: "dada lembut", qty: 0 }));
 
         // Render Omset
-        const omsetHtml = areaList.map((area, i) => `
+        document.getElementById('omsetForm').innerHTML = areaList.map((area, i) => `
             <div class="row">
-                <label>${i + 1}. ${area}</label>
-                <input type="number" class="omset-in" value="${savedOmset ? savedOmset[i] : defaultOmset[i]}" oninput="calc()">
+                <label>${i+1}. ${area}</label>
+                <input type="number" class="omset-in" value="${savedOmset[i]}" oninput="calc()">
             </div>
         `).join('');
-        document.getElementById('omsetForm').innerHTML = omsetHtml;
 
         // Render Sisa
-        const sisaHtml = areaList.map((area, i) => `
-            <div class="sisa-row">
-                <span>${area}</span>
-                <div class="input-group">
-                    <input type="number" class="sisa-in" value="${savedSisa ? savedSisa[i] : 0}" oninput="saveData(false)">
-                    <span>pcs</span>
+        document.getElementById('sisaForm').innerHTML = areaList.map((area, i) => `
+            <div class="sisa-container">
+                <small><strong>${area.toUpperCase()}</strong></small>
+                <div class="sisa-inputs">
+                    <input type="text" class="sisa-item" placeholder="Nama barang" value="${savedSisa[i].item}" oninput="autoSave()">
+                    <input type="number" class="sisa-qty" placeholder="Pcs" value="${savedSisa[i].qty}" oninput="autoSave()">
                 </div>
             </div>
         `).join('');
-        document.getElementById('sisaForm').innerHTML = sisaHtml;
 
         calc();
     }
 
     function calc() {
         let total = 0;
-        document.querySelectorAll('.omset-in').forEach(input => {
-            total += Number(input.value) || 0;
-        });
+        document.querySelectorAll('.omset-in').forEach(el => total += Number(el.value) || 0);
         document.getElementById('grandTotal').innerText = "Rp" + total.toLocaleString('id-ID');
-        saveData(false); // Simpan otomatis tiap ada perubahan tanpa alert
+        autoSave();
     }
 
-    // Param showAlert untuk menentukan muncul pop-up atau tidak
-    function saveData(showAlert) {
-        const omsetVals = Array.from(document.querySelectorAll('.omset-in')).map(i => Number(i.value));
-        const sisaVals = Array.from(document.querySelectorAll('.sisa-in')).map(i => Number(i.value));
-        
-        localStorage.setItem('jepe_omset_v3', JSON.stringify(omsetVals));
-        localStorage.setItem('jepe_sisa_v3', JSON.stringify(sisaVals));
-        
-        if(showAlert) alert("Data berhasil disimpan!");
+    function autoSave() {
+        const omset = Array.from(document.querySelectorAll('.omset-in')).map(el => Number(el.value));
+        const sisa = Array.from(document.querySelectorAll('.sisa-container')).map(el => ({
+            item: el.querySelector('.sisa-item').value,
+            qty: el.querySelector('.sisa-qty').value
+        }));
+        localStorage.setItem('jepe_omset_v4', JSON.stringify(omset));
+        localStorage.setItem('jepe_sisa_v4', JSON.stringify(sisa));
     }
 
     function copyReport() {
-        // Simpan data terbaru tanpa alert
-        saveData(false);
+        const d = new Date();
+        const tgl = d.toLocaleDateString('id-ID', {day:'2-digit', month:'long', year:'numeric'}).toUpperCase();
         
-        let total = document.getElementById('grandTotal').innerText;
-        let text = `*OMSET PENJUALAN AYAM BOOTH JEPE FRIED CHICKEN*\n*${getToday()}*\n\n*AREA TIMUR (AWAN)*\n\n`;
+        let report = `*OMSET PENJUALAN AYAM BOOTH JEPE FRIED CHICKEN*\n*${tgl}*\n\n*AREA TIMUR (AWAN)*\n\n`;
         
-        const omsetIn = document.querySelectorAll('.omset-in');
+        // Perapian Omset (Rata Kanan Manual dengan Spasi)
+        const omsetInputs = document.querySelectorAll('.omset-in');
         areaList.forEach((area, i) => {
-            let val = Number(omsetIn[i].value).toLocaleString('id-ID');
-            text += `*${i+1}. ${area}* ${val}\n`;
+            const num = (i + 1) + ". " + area;
+            const price = Number(omsetInputs[i].value).toLocaleString('id-ID');
+            // Menambah titik-titik agar rata
+            const dots = ".".repeat(Math.max(2, 25 - num.length - price.length));
+            report += `*${num}*${dots}${price}\n`;
         });
 
-        text += `___________________________ +\n\nTotal:              *${total}*\n\n*sisa goreng booth area timur*\n\n`;
+        report += `___________________________ +\n\nTotal:              *Rp${document.getElementById('grandTotal').innerText.replace('Rp','')}*\n\n`;
+        report += `*sisa goreng booth area timur*\n\n`;
 
-        const sisaIn = document.querySelectorAll('.sisa-in');
-        let adaSisa = false;
+        const sisaItems = document.querySelectorAll('.sisa-item');
+        const sisaQtys = document.querySelectorAll('.sisa-qty');
+        
         areaList.forEach((area, i) => {
-            let jml = Number(sisaIn[i].value);
-            if(jml > 0) {
-                text += `${area}\n- dada lembut ${jml} pcs\ndibooth\n\n`;
-                adaSisa = true;
+            const qty = Number(sisaQtys[i].value);
+            if (qty > 0) {
+                report += `${area}\n• ${sisaItems[i].value} ${qty} pcs\ndibooth\n\n`;
             }
         });
 
-        if(!adaSisa) text += "(Tidak ada sisa goreng)";
-
-        // Proses Copy ke Clipboard
-        const el = document.createElement('textarea');
-        el.value = text;
-        document.body.appendChild(el);
-        el.select();
-        document.execCommand('copy');
-        document.body.removeChild(el);
-
-        alert("✅ Laporan sudah DISALIN! Silakan buka WhatsApp lalu tempel (paste).");
+        navigator.clipboard.writeText(report).then(() => {
+            alert("Laporan Rapi Berhasil Disalin!");
+        });
     }
 
     function resetData() {
-        if(confirm("Hapus semua data dan kembali ke awal?")) {
-            localStorage.removeItem('jepe_omset_v3');
-            localStorage.removeItem('jepe_sisa_v3');
+        if(confirm("Hapus semua data?")) {
+            localStorage.clear();
             location.reload();
         }
     }
